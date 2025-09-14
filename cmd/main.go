@@ -52,6 +52,7 @@ func main() {
 					utls.PKCS1WithSHA256,
 				},
 			},
+			&utls.SupportedVersionsExtension{Versions: []uint16{utls.VersionTLS13}},
 		},
 	}
 
@@ -63,7 +64,10 @@ func main() {
 	}
 	defer conn.Close()
 
-	config := &utls.Config{ServerName: targetURL, ServerResponse: &serverResponse}
+	config := &utls.Config{
+		ServerName:     targetURL,
+		ServerResponse: &serverResponse,
+	}
 	uconn := utls.UClient(conn, config, utls.HelloCustom)
 	if err := uconn.ApplyPreset(&spec); err != nil {
 		fmt.Printf("ApplyPreset error: %v\n", err)
