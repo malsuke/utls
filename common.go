@@ -850,6 +850,10 @@ type Config struct {
 	// used for debugging.
 	KeyLogWriter io.Writer
 
+	// ServerResponse is a pointer to a byte slice that will be filled with the raw
+	// server response records.
+	ServerResponse *[]byte // [uTLS]
+
 	// EncryptedClientHelloConfigList is a serialized ECHConfigList. If
 	// provided, clients will attempt to connect to servers using Encrypted
 	// Client Hello (ECH) using one of the provided ECHConfigs.

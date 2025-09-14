@@ -687,6 +687,11 @@ func (c *Conn) readRecordOrCCS(expectChangeCipherSpec bool) error {
 
 	// Process message.
 	record := c.rawInput.Next(recordHeaderLen + n)
+
+	if c.isClient && c.config.ServerResponse != nil {
+		*c.config.ServerResponse = append(*c.config.ServerResponse, record...)
+	}
+
 	data, typ, err := c.in.decrypt(record)
 	if err != nil {
 		return c.in.setErrorLocked(c.sendAlert(err.(alert)))
