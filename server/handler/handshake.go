@@ -13,7 +13,7 @@ func (s Server) PostTlsHandshake(ctx echo.Context) error {
 		return ctx.JSON(400, "Invalid payload")
 	}
 
-	return ctx.JSON(200, "ok")
+	return ctx.JSON(200, payload.CipherSuites)
 }
 
 func (s Server) PostTlsApplication(ctx echo.Context) error {

@@ -69,14 +69,12 @@ components:
     # リクエスト関連のスキーマ
     #------------------------------------------------------------
 
-    # Schema for /tls/handshake endpoint request body
     HandshakeRequest:
       allOf:
         - $ref: '#/components/schemas/ConnectionTarget'
         - $ref: '#/components/schemas/TlsClientParameters'
       type: object
 
-    # Schema for /tls/application endpoint request body
     ApplicationRequest:
       allOf:
         - $ref: '#/components/schemas/ConnectionTarget'
@@ -91,7 +89,6 @@ components:
           description: 暗号化して送信するHTTPメッセージなどのアプリケーションデータ（Base64エンコード）
           example: "R0VUIC8gSFRUUC8xLjENCkhvc3Q6IHd3dy5leGFtcGxlLmNvbQ0KDQo="
 
-    # Schema for connection target information
     ConnectionTarget:
       type: object
       required:
@@ -106,9 +103,18 @@ components:
           description: 接続先ポート
           default: 443
 
-    # Schema for TLS client parameters
     TlsClientParameters:
       type: object
+      # TlsClientParameters内で必須のプロパティをリストで指定
+      required:
+        - server_name
+        - client_random
+        - cipher_suites
+        - supported_groups
+        - key_shares
+        - signature_algorithms
+        - tls_versions
+        - private_key
       properties:
         server_name:
           type: string
@@ -152,10 +158,16 @@ components:
           items:
             type: string
           default: ["TLS1.3"]
+        private_key:
+          type: string
+          description: KeyShare に使う秘密鍵 (hex)
+          example: "deadbeefdeadbeef..."
 
-    # Schema for the KeyShare object
     KeyShare:
       type: object
+      # KeyShare内で必須のプロパティをリストで指定
+      required:
+        - data
       properties:
         group:
           type: string

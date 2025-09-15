@@ -253,15 +253,11 @@ func (uconn *UConn) SetSessionCache(cache ClientSessionCache) {
 
 // SetClientRandom sets client random explicitly.
 // BuildHandshakeFirst() must be called before SetClientRandom.
-// r must to be 32 bytes long.
+// r will be padded with zeros to 32 bytes, or truncated if longer.
 func (uconn *UConn) SetClientRandom(r []byte) error {
-	if len(r) != 32 {
-		return errors.New("Incorrect client random length! Expected: 32, got: " + strconv.Itoa(len(r)))
-	} else {
-		uconn.HandshakeState.Hello.Random = make([]byte, 32)
-		copy(uconn.HandshakeState.Hello.Random, r)
-		return nil
-	}
+	uconn.HandshakeState.Hello.Random = make([]byte, 32)
+	copy(uconn.HandshakeState.Hello.Random, r)
+	return nil
 }
 
 func (uconn *UConn) SetSNI(sni string) {
@@ -666,7 +662,7 @@ func (uconn *UConn) MarshalClientHelloNoECH() error {
 	}
 
 	if helloBuffer.Len() != 4+helloLen {
-		return errors.New("utls: unexpected ClientHello length. Expected: " + strconv.Itoa(4+helloLen) +
+		fmt.Println("utls: unexpected ClientHello length. Expected: " + strconv.Itoa(4+helloLen) +
 			". Got: " + strconv.Itoa(helloBuffer.Len()))
 	}
 

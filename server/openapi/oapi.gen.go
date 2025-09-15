@@ -23,31 +23,34 @@ import (
 // ApplicationRequest defines model for ApplicationRequest.
 type ApplicationRequest struct {
 	// CipherSuites 使用する Cipher Suite のリスト (16進数文字列)
-	CipherSuites *[]string `json:"cipher_suites,omitempty"`
+	CipherSuites []string `json:"cipher_suites"`
 
 	// ClientRandom クライアントの Random 値 (hex)
-	ClientRandom *string `json:"client_random,omitempty"`
+	ClientRandom string `json:"client_random"`
 
 	// KeyShares KeyShare に使う鍵情報
-	KeyShares *[]KeyShare `json:"key_shares,omitempty"`
+	KeyShares []KeyShare `json:"key_shares"`
 
 	// Port 接続先ポート
 	Port *int `json:"port,omitempty"`
+
+	// PrivateKey KeyShare に使う秘密鍵 (hex)
+	PrivateKey string `json:"private_key"`
 
 	// Server 接続先ホスト名またはIPアドレス
 	Server string `json:"server"`
 
 	// ServerName Server Name Indication (SNI)拡張に設定するホスト名。指定しない場合は'server'の値が使用されます。
-	ServerName *string `json:"server_name,omitempty"`
+	ServerName string `json:"server_name"`
 
 	// SignatureAlgorithms サポートする署名アルゴリズム
-	SignatureAlgorithms *[]string `json:"signature_algorithms,omitempty"`
+	SignatureAlgorithms []string `json:"signature_algorithms"`
 
 	// SupportedGroups サポートする楕円曲線 (KeyShare Group)
-	SupportedGroups *[]string `json:"supported_groups,omitempty"`
+	SupportedGroups []string `json:"supported_groups"`
 
 	// TlsVersions 使用する TLS バージョン
-	TlsVersions *[]string `json:"tls_versions,omitempty"`
+	TlsVersions []string `json:"tls_versions"`
 }
 
 // ApplicationResponse defines model for ApplicationResponse.
@@ -77,31 +80,34 @@ type ConnectionTarget struct {
 // HandshakeRequest defines model for HandshakeRequest.
 type HandshakeRequest struct {
 	// CipherSuites 使用する Cipher Suite のリスト (16進数文字列)
-	CipherSuites *[]string `json:"cipher_suites,omitempty"`
+	CipherSuites []string `json:"cipher_suites"`
 
 	// ClientRandom クライアントの Random 値 (hex)
-	ClientRandom *string `json:"client_random,omitempty"`
+	ClientRandom string `json:"client_random"`
 
 	// KeyShares KeyShare に使う鍵情報
-	KeyShares *[]KeyShare `json:"key_shares,omitempty"`
+	KeyShares []KeyShare `json:"key_shares"`
 
 	// Port 接続先ポート
 	Port *int `json:"port,omitempty"`
+
+	// PrivateKey KeyShare に使う秘密鍵 (hex)
+	PrivateKey string `json:"private_key"`
 
 	// Server 接続先ホスト名またはIPアドレス
 	Server string `json:"server"`
 
 	// ServerName Server Name Indication (SNI)拡張に設定するホスト名。指定しない場合は'server'の値が使用されます。
-	ServerName *string `json:"server_name,omitempty"`
+	ServerName string `json:"server_name"`
 
 	// SignatureAlgorithms サポートする署名アルゴリズム
-	SignatureAlgorithms *[]string `json:"signature_algorithms,omitempty"`
+	SignatureAlgorithms []string `json:"signature_algorithms"`
 
 	// SupportedGroups サポートする楕円曲線 (KeyShare Group)
-	SupportedGroups *[]string `json:"supported_groups,omitempty"`
+	SupportedGroups []string `json:"supported_groups"`
 
 	// TlsVersions 使用する TLS バージョン
-	TlsVersions *[]string `json:"tls_versions,omitempty"`
+	TlsVersions []string `json:"tls_versions"`
 }
 
 // HandshakeResponse defines model for HandshakeResponse.
@@ -125,7 +131,7 @@ type HandshakeResponse struct {
 // KeyShare defines model for KeyShare.
 type KeyShare struct {
 	// Data 公開鍵データ（hex 文字列）
-	Data *string `json:"data,omitempty"`
+	Data string `json:"data"`
 
 	// Group 曲線名
 	Group *string `json:"group,omitempty"`
@@ -134,25 +140,28 @@ type KeyShare struct {
 // TlsClientParameters defines model for TlsClientParameters.
 type TlsClientParameters struct {
 	// CipherSuites 使用する Cipher Suite のリスト (16進数文字列)
-	CipherSuites *[]string `json:"cipher_suites,omitempty"`
+	CipherSuites []string `json:"cipher_suites"`
 
 	// ClientRandom クライアントの Random 値 (hex)
-	ClientRandom *string `json:"client_random,omitempty"`
+	ClientRandom string `json:"client_random"`
 
 	// KeyShares KeyShare に使う鍵情報
-	KeyShares *[]KeyShare `json:"key_shares,omitempty"`
+	KeyShares []KeyShare `json:"key_shares"`
+
+	// PrivateKey KeyShare に使う秘密鍵 (hex)
+	PrivateKey string `json:"private_key"`
 
 	// ServerName Server Name Indication (SNI)拡張に設定するホスト名。指定しない場合は'server'の値が使用されます。
-	ServerName *string `json:"server_name,omitempty"`
+	ServerName string `json:"server_name"`
 
 	// SignatureAlgorithms サポートする署名アルゴリズム
-	SignatureAlgorithms *[]string `json:"signature_algorithms,omitempty"`
+	SignatureAlgorithms []string `json:"signature_algorithms"`
 
 	// SupportedGroups サポートする楕円曲線 (KeyShare Group)
-	SupportedGroups *[]string `json:"supported_groups,omitempty"`
+	SupportedGroups []string `json:"supported_groups"`
 
 	// TlsVersions 使用する TLS バージョン
-	TlsVersions *[]string `json:"tls_versions,omitempty"`
+	TlsVersions []string `json:"tls_versions"`
 }
 
 // PostTlsApplicationJSONRequestBody defines body for PostTlsApplication for application/json ContentType.
@@ -626,35 +635,36 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
+	"jZ+PnY+Bmesz/w0AAP//gKjXinYVAAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file
