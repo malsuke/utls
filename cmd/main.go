@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"os"
 	"strings"
 	"time"
 
@@ -38,7 +39,7 @@ func main() {
 		},
 		Extensions: []utls.TLSExtension{
 			&utls.SNIExtension{ServerName: targetURL},
-			&utls.SupportedCurvesExtension{
+			&utls.SupportedCurvesExtension{ // supported_groupsと同じ
 				Curves: []utls.CurveID{utls.X25519, utls.CurveP256, utls.CurveP384},
 			},
 			&utls.KeyShareExtension{KeyShares: []utls.KeyShare{
@@ -67,6 +68,9 @@ func main() {
 	config := &utls.Config{
 		ServerName:     targetURL,
 		ServerResponse: &serverResponse,
+		KeyLogWriter:   os.Stderr,
+		MinVersion:     utls.VersionTLS13,
+		MaxVersion:     utls.VersionTLS13,
 	}
 	uconn := utls.UClient(conn, config, utls.HelloCustom)
 	if err := uconn.ApplyPreset(&spec); err != nil {
