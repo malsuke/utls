@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	tls "github.com/refraction-networking/utls"
 	utls "github.com/refraction-networking/utls"
 )
 
@@ -104,6 +105,8 @@ func main() {
 		}
 		return
 	}
+
+	fmt.Print(hex.Dump(tls.ClientHelloRaw))
 	fmt.Println("✅ TLS Handshake successful")
 
 	if serverResponse != nil {

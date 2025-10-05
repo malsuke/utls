@@ -130,16 +130,19 @@ components:
           items:
             type: string
           example:
-            - "0x1301"
-            - "0x1302"
+            - "0x1301"  # TLS_AES_128_GCM_SHA256
+            - "0x1302"  # TLS_AES_256_GCM_SHA384
+            - "0x1303"  # TLS_CHACHA20_POLY1305_SHA256
         supported_groups:
           type: array
           description: サポートする楕円曲線 (KeyShare Group)
           items:
             type: string
           example:
-            - X25519
-            - P256
+            - "0x001d"  # X25519
+            - "0x0017"  # secp256r1
+            - "0x0018"  # secp384r1
+            - "0x0019"  # secp521r1
         key_shares:
           type: array
           description: KeyShare に使う鍵情報
@@ -151,7 +154,9 @@ components:
           items:
             type: string
           example:
-            - ECDSAWithP256AndSHA256
+            - "0x0403"  # ecdsa_secp256r1_sha256
+            - "0x0503"  # rsa_pss_rsae_sha256
+            - "0x0804"  # rsa_pss_pss_sha256
         tls_versions:
           type: array
           description: 使用する TLS バージョン
@@ -167,12 +172,12 @@ components:
       type: object
       # KeyShare内で必須のプロパティをリストで指定
       required:
-        - data
+        - group
       properties:
         group:
           type: string
           description: 曲線名
-          example: X25519
+          example: "0x001d"  # X25519
         data:
           type: string
           description: 公開鍵データ（hex 文字列）
@@ -183,22 +188,26 @@ components:
     #------------------------------------------------------------
     HandshakeResponse:
       type: object
+      description: TLSハンドシェイク成功時のレスポンス
+      required:
+        - handshake_success
+        - raw_client_hello
+        - raw_server_response
+        - shared_secret
       properties:
         handshake_success:
           type: boolean
-          description: ハンドシェイクが成功したかどうか
+          description: ハンドシェイクの成否を示します。成功時は常に true となります。
+          example: true
         raw_client_hello:
           type: string
-          description: クライアントから送信された ClientHello の生データ（hex 表示）
+          description: ClientHelloのバイト列 (hexエンコード)
         raw_server_response:
           type: string
-          description: サーバからの ServerHello を含む応答データ（hex 表示）
+          description: ServerHelloを含めたサーバー側の応答のバイト列 (hexエンコード)
         shared_secret:
           type: string
-          description: ハンドシェイクで導出された共通鍵（hex 表示）
-        alert:
-          type: string
-          description: エラーがあればアラートメッセージ
+          description: ハンドシェイクで導出された共通鍵 (hexエンコード)
 
     ApplicationResponse:
       type: object

@@ -1,0 +1,380 @@
+{
+    "item": [
+        {
+            "name": "TLS",
+            "description": "",
+            "item": [
+                {
+                    "id": "da8abfbe-0aff-4be8-a5d0-4540ce872e0d",
+                    "name": "TLS 1.3 ハンドシェイクを実行",
+                    "request": {
+                        "name": "TLS 1.3 ハンドシェイクを実行",
+                        "description": {
+                            "content": "指定した TLS 設定でサーバとハンドシェイクを行い、その結果を返します。ハンドシェイクのみでアプリケーションデータは送信しません。",
+                            "type": "text/plain"
+                        },
+                        "url": {
+                            "path": [
+                                "tls",
+                                "handshake"
+                            ],
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "query": [],
+                            "variable": []
+                        },
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"cipher_suites\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"client_random\": \"<string>\",\n  \"key_shares\": [\n    {\n      \"data\": \"<string>\",\n      \"group\": \"<string>\"\n    },\n    {\n      \"data\": \"<string>\",\n      \"group\": \"<string>\"\n    }\n  ],\n  \"private_key\": \"<string>\",\n  \"server\": \"<string>\",\n  \"server_name\": \"<string>\",\n  \"signature_algorithms\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"supported_groups\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"tls_versions\": [\n    \"TLS1.3\"\n  ],\n  \"port\": 443\n}",
+                            "options": {
+                                "raw": {
+                                    "headerFamily": "json",
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "auth": null
+                    },
+                    "response": [
+                        {
+                            "id": "4684786c-0a33-415e-b49d-a1beb4917a18",
+                            "name": "TLS ハンドシェイク成功時のレスポンス",
+                            "originalRequest": {
+                                "url": {
+                                    "path": [
+                                        "tls",
+                                        "handshake"
+                                    ],
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "query": [],
+                                    "variable": []
+                                },
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "method": "POST",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"cipher_suites\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"client_random\": \"<string>\",\n  \"key_shares\": [\n    {\n      \"data\": \"<string>\",\n      \"group\": \"<string>\"\n    },\n    {\n      \"data\": \"<string>\",\n      \"group\": \"<string>\"\n    }\n  ],\n  \"private_key\": \"<string>\",\n  \"server\": \"<string>\",\n  \"server_name\": \"<string>\",\n  \"signature_algorithms\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"supported_groups\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"tls_versions\": [\n    \"TLS1.3\"\n  ],\n  \"port\": 443\n}",
+                                    "options": {
+                                        "raw": {
+                                            "headerFamily": "json",
+                                            "language": "json"
+                                        }
+                                    }
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"handshake_success\": \"<boolean>\",\n  \"raw_client_hello\": \"<string>\",\n  \"raw_server_response\": \"<string>\",\n  \"shared_secret\": \"<string>\"\n}",
+                            "cookie": [],
+                            "_postman_previewlanguage": "json"
+                        },
+                        {
+                            "id": "2fc00b2e-f165-497d-b21f-77277c5121ec",
+                            "name": "リクエストパラメータが不正",
+                            "originalRequest": {
+                                "url": {
+                                    "path": [
+                                        "tls",
+                                        "handshake"
+                                    ],
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "query": [],
+                                    "variable": []
+                                },
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "method": "POST",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"cipher_suites\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"client_random\": \"<string>\",\n  \"key_shares\": [\n    {\n      \"data\": \"<string>\",\n      \"group\": \"<string>\"\n    },\n    {\n      \"data\": \"<string>\",\n      \"group\": \"<string>\"\n    }\n  ],\n  \"private_key\": \"<string>\",\n  \"server\": \"<string>\",\n  \"server_name\": \"<string>\",\n  \"signature_algorithms\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"supported_groups\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"tls_versions\": [\n    \"TLS1.3\"\n  ],\n  \"port\": 443\n}",
+                                    "options": {
+                                        "raw": {
+                                            "headerFamily": "json",
+                                            "language": "json"
+                                        }
+                                    }
+                                }
+                            },
+                            "status": "Bad Request",
+                            "code": 400,
+                            "header": [],
+                            "cookie": [],
+                            "_postman_previewlanguage": "text"
+                        },
+                        {
+                            "id": "bc5ee9bf-95c8-47af-a927-085b21f44ea0",
+                            "name": "サーバ内部エラー",
+                            "originalRequest": {
+                                "url": {
+                                    "path": [
+                                        "tls",
+                                        "handshake"
+                                    ],
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "query": [],
+                                    "variable": []
+                                },
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "method": "POST",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"cipher_suites\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"client_random\": \"<string>\",\n  \"key_shares\": [\n    {\n      \"data\": \"<string>\",\n      \"group\": \"<string>\"\n    },\n    {\n      \"data\": \"<string>\",\n      \"group\": \"<string>\"\n    }\n  ],\n  \"private_key\": \"<string>\",\n  \"server\": \"<string>\",\n  \"server_name\": \"<string>\",\n  \"signature_algorithms\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"supported_groups\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"tls_versions\": [\n    \"TLS1.3\"\n  ],\n  \"port\": 443\n}",
+                                    "options": {
+                                        "raw": {
+                                            "headerFamily": "json",
+                                            "language": "json"
+                                        }
+                                    }
+                                }
+                            },
+                            "status": "Internal Server Error",
+                            "code": 500,
+                            "header": [],
+                            "cookie": [],
+                            "_postman_previewlanguage": "text"
+                        }
+                    ],
+                    "event": [],
+                    "protocolProfileBehavior": {
+                        "disableBodyPruning": true
+                    }
+                },
+                {
+                    "id": "d028d04d-ee0f-4497-a772-224bdc7ee47f",
+                    "name": "TLS 1.3 アプリケーションデータを送信",
+                    "request": {
+                        "name": "TLS 1.3 アプリケーションデータを送信",
+                        "description": {
+                            "content": "指定した TLS 設定でサーバとハンドシェイクを行い、成功後にアプリケーションデータを送信してレスポンスを返します。",
+                            "type": "text/plain"
+                        },
+                        "url": {
+                            "path": [
+                                "tls",
+                                "application"
+                            ],
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "query": [],
+                            "variable": []
+                        },
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "method": "POST",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"application_data\": \"string\",\n  \"cipher_suites\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"client_random\": \"<string>\",\n  \"key_shares\": [\n    {\n      \"data\": \"<string>\",\n      \"group\": \"<string>\"\n    },\n    {\n      \"data\": \"<string>\",\n      \"group\": \"<string>\"\n    }\n  ],\n  \"private_key\": \"<string>\",\n  \"server\": \"<string>\",\n  \"server_name\": \"<string>\",\n  \"signature_algorithms\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"supported_groups\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"tls_versions\": [\n    \"TLS1.3\"\n  ],\n  \"port\": 443\n}",
+                            "options": {
+                                "raw": {
+                                    "headerFamily": "json",
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "auth": null
+                    },
+                    "response": [
+                        {
+                            "id": "9e1b525b-9162-4ba4-8a72-2c589eae8a96",
+                            "name": "TLS アプリケーションデータ送信成功時のレスポンス",
+                            "originalRequest": {
+                                "url": {
+                                    "path": [
+                                        "tls",
+                                        "application"
+                                    ],
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "query": [],
+                                    "variable": []
+                                },
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "method": "POST",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"application_data\": \"string\",\n  \"cipher_suites\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"client_random\": \"<string>\",\n  \"key_shares\": [\n    {\n      \"data\": \"<string>\",\n      \"group\": \"<string>\"\n    },\n    {\n      \"data\": \"<string>\",\n      \"group\": \"<string>\"\n    }\n  ],\n  \"private_key\": \"<string>\",\n  \"server\": \"<string>\",\n  \"server_name\": \"<string>\",\n  \"signature_algorithms\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"supported_groups\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"tls_versions\": [\n    \"TLS1.3\"\n  ],\n  \"port\": 443\n}",
+                                    "options": {
+                                        "raw": {
+                                            "headerFamily": "json",
+                                            "language": "json"
+                                        }
+                                    }
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"handshake_success\": \"<boolean>\",\n  \"application_response\": \"<string>\",\n  \"raw_server_response\": \"<string>\",\n  \"alert\": \"<string>\"\n}",
+                            "cookie": [],
+                            "_postman_previewlanguage": "json"
+                        },
+                        {
+                            "id": "15eb2e86-aeb2-48ed-842b-3e47e9f7de08",
+                            "name": "リクエストパラメータが不正",
+                            "originalRequest": {
+                                "url": {
+                                    "path": [
+                                        "tls",
+                                        "application"
+                                    ],
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "query": [],
+                                    "variable": []
+                                },
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "method": "POST",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"application_data\": \"string\",\n  \"cipher_suites\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"client_random\": \"<string>\",\n  \"key_shares\": [\n    {\n      \"data\": \"<string>\",\n      \"group\": \"<string>\"\n    },\n    {\n      \"data\": \"<string>\",\n      \"group\": \"<string>\"\n    }\n  ],\n  \"private_key\": \"<string>\",\n  \"server\": \"<string>\",\n  \"server_name\": \"<string>\",\n  \"signature_algorithms\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"supported_groups\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"tls_versions\": [\n    \"TLS1.3\"\n  ],\n  \"port\": 443\n}",
+                                    "options": {
+                                        "raw": {
+                                            "headerFamily": "json",
+                                            "language": "json"
+                                        }
+                                    }
+                                }
+                            },
+                            "status": "Bad Request",
+                            "code": 400,
+                            "header": [],
+                            "cookie": [],
+                            "_postman_previewlanguage": "text"
+                        },
+                        {
+                            "id": "8ec8618e-72c7-4ad3-84cc-8062c8c4461d",
+                            "name": "サーバ内部エラー",
+                            "originalRequest": {
+                                "url": {
+                                    "path": [
+                                        "tls",
+                                        "application"
+                                    ],
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "query": [],
+                                    "variable": []
+                                },
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "method": "POST",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"application_data\": \"string\",\n  \"cipher_suites\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"client_random\": \"<string>\",\n  \"key_shares\": [\n    {\n      \"data\": \"<string>\",\n      \"group\": \"<string>\"\n    },\n    {\n      \"data\": \"<string>\",\n      \"group\": \"<string>\"\n    }\n  ],\n  \"private_key\": \"<string>\",\n  \"server\": \"<string>\",\n  \"server_name\": \"<string>\",\n  \"signature_algorithms\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"supported_groups\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"tls_versions\": [\n    \"TLS1.3\"\n  ],\n  \"port\": 443\n}",
+                                    "options": {
+                                        "raw": {
+                                            "headerFamily": "json",
+                                            "language": "json"
+                                        }
+                                    }
+                                }
+                            },
+                            "status": "Internal Server Error",
+                            "code": 500,
+                            "header": [],
+                            "cookie": [],
+                            "_postman_previewlanguage": "text"
+                        }
+                    ],
+                    "event": [],
+                    "protocolProfileBehavior": {
+                        "disableBodyPruning": true
+                    }
+                }
+            ]
+        }
+    ],
+    "event": [],
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:8080"
+        }
+    ],
+    "info": {
+        "_postman_id": "4870e0cc-ca53-40ee-87f2-cb877dd39e46",
+        "name": "TLS Learning API",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "description": {
+            "content": "学習用の TLS クライアントAPIです。 Cipher Suites, Extensions, KeyShares などを自由に指定して TLS 1.3 ハンドシェイクを実行できます。\n",
+            "type": "text/plain"
+        }
+    }
+}

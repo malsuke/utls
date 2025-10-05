@@ -589,6 +589,8 @@ func (uconn *UConn) MarshalClientHello() error {
 
 }
 
+var ClientHelloRaw = []byte{}
+
 // MarshalClientHelloNoECH marshals ClientHello as if there was no
 // ECH extension present.
 func (uconn *UConn) MarshalClientHelloNoECH() error {
@@ -667,6 +669,7 @@ func (uconn *UConn) MarshalClientHelloNoECH() error {
 	}
 
 	hello.Raw = helloBuffer.Bytes()
+	ClientHelloRaw = hello.Raw
 	return nil
 }
 
