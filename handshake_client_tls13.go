@@ -13,6 +13,7 @@ import (
 	"crypto/mlkem"
 	"crypto/rsa"
 	"crypto/subtle"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"hash"
@@ -22,6 +23,9 @@ import (
 	"github.com/refraction-networking/utls/internal/hkdf"
 	"github.com/refraction-networking/utls/internal/tls13"
 )
+
+// Gemini: buffer for decrypted handshake messages
+var decryptedHandshakeBuffer bytes.Buffer
 
 type clientHandshakeStateTLS13 struct {
 	c            *Conn
@@ -696,6 +700,11 @@ func (hs *clientHandshakeStateTLS13) readServerParameters() error {
 		return unexpectedMessageError(encryptedExtensions, msg)
 	}
 
+	// Gemini: write marshaled message to buffer
+	if marshaled, err := encryptedExtensions.marshal(); err == nil {
+		decryptedHandshakeBuffer.Write(marshaled)
+	}
+
 	if err := checkALPN(hs.hello.alpnProtocols, encryptedExtensions.alpnProtocol, c.quic != nil); err != nil {
 		// RFC 8446 specifies that no_application_protocol is sent by servers, but
 		// does not specify how clients handle the selection of an incompatible protocol.
@@ -816,6 +825,10 @@ func (hs *clientHandshakeStateTLS13) readServerCertificate() error {
 		c.sendAlert(alertUnexpectedMessage)
 		return unexpectedMessageError(certMsg, msg)
 	}
+	// Gemini: write marshaled message to buffer
+	if marshaled, err := certMsg.marshal(); err == nil {
+		decryptedHandshakeBuffer.Write(marshaled)
+	}
 	if len(certMsg.certificate.Certificate) == 0 {
 		c.sendAlert(alertDecodeError)
 		return errors.New("tls: received empty certificates message")
@@ -847,6 +860,10 @@ func (hs *clientHandshakeStateTLS13) readServerCertificate() error {
 	if !ok {
 		c.sendAlert(alertUnexpectedMessage)
 		return unexpectedMessageError(certVerify, msg)
+	}
+	// Gemini: write marshaled message to buffer
+	if marshaled, err := certVerify.marshal(); err == nil {
+		decryptedHandshakeBuffer.Write(marshaled)
 	}
 
 	// See RFC 8446, Section 4.4.3.
@@ -892,6 +909,14 @@ func (hs *clientHandshakeStateTLS13) readServerFinished() error {
 		c.sendAlert(alertUnexpectedMessage)
 		return unexpectedMessageError(finished, msg)
 	}
+	// Gemini: write marshaled message to buffer and dump
+	if marshaled, err := finished.marshal(); err == nil {
+		decryptedHandshakeBuffer.Write(marshaled)
+	}
+	fmt.Println("--- Concatenated Decrypted Handshake Messages ---")
+	fmt.Print(hex.Dump(decryptedHandshakeBuffer.Bytes()))
+	fmt.Println("-------------------------------------------------")
+	decryptedHandshakeBuffer.Reset() // Reset for next connection
 
 	expectedMAC := hs.suite.finishedHash(c.in.trafficSecret, hs.transcript)
 	if !hmac.Equal(expectedMAC, finished.verifyData) {
