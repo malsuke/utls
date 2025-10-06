@@ -13,7 +13,6 @@ import (
 	"crypto/mlkem"
 	"crypto/rsa"
 	"crypto/subtle"
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"hash"
@@ -26,6 +25,8 @@ import (
 
 // Gemini: buffer for decrypted handshake messages
 var decryptedHandshakeBuffer bytes.Buffer
+
+var FullRecordBytes []byte
 
 type clientHandshakeStateTLS13 struct {
 	c            *Conn
@@ -913,10 +914,19 @@ func (hs *clientHandshakeStateTLS13) readServerFinished() error {
 	if marshaled, err := finished.marshal(); err == nil {
 		decryptedHandshakeBuffer.Write(marshaled)
 	}
-	fmt.Println("--- Concatenated Decrypted Handshake Messages ---")
-	fmt.Print(hex.Dump(decryptedHandshakeBuffer.Bytes()))
-	fmt.Println("-------------------------------------------------")
-	decryptedHandshakeBuffer.Reset() // Reset for next connection
+	// Gemini: build and dump the full record
+	fullRecord := new(bytes.Buffer)
+	header := make([]byte, 5)
+	header[0] = 22 // recordTypeHandshake
+	header[1] = byte(VersionTLS12 >> 8)
+	header[2] = byte(VersionTLS12 & 0xff)
+	length := decryptedHandshakeBuffer.Len()
+	header[3] = byte(length >> 8)
+	header[4] = byte(length)
+	fullRecord.Write(header)
+	fullRecord.Write(decryptedHandshakeBuffer.Bytes())
+
+	FullRecordBytes = fullRecord.Bytes()
 
 	expectedMAC := hs.suite.finishedHash(c.in.trafficSecret, hs.transcript)
 	if !hmac.Equal(expectedMAC, finished.verifyData) {

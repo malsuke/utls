@@ -33,8 +33,16 @@ paths:
                 $ref: '#/components/schemas/HandshakeResponse'
         '400':
           description: リクエストパラメータが不正
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: サーバ内部エラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /tls/application:
     post:
@@ -57,8 +65,16 @@ paths:
                 $ref: '#/components/schemas/ApplicationResponse'
         '400':
           description: リクエストパラメータが不正
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: サーバ内部エラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
 #============================================================
 # Components: 再利用可能なスキーマの定義
@@ -68,6 +84,14 @@ components:
     #------------------------------------------------------------
     # リクエスト関連のスキーマ
     #------------------------------------------------------------
+    ErrorResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          description: エラーメッセージ
 
     HandshakeRequest:
       allOf:
@@ -193,6 +217,7 @@ components:
         - handshake_success
         - raw_client_hello
         - raw_server_response
+        - raw_server_response_decoded
         - shared_secret
       properties:
         handshake_success:
@@ -205,6 +230,9 @@ components:
         raw_server_response:
           type: string
           description: ServerHelloを含めたサーバー側の応答のバイト列 (hexエンコード)
+        raw_server_response_decoded:
+          type: string
+          description: ServerHelloを含めたサーバー側の応答のバイト列を復号化したもの
         shared_secret:
           type: string
           description: ハンドシェイクで導出された共通鍵 (hexエンコード)
@@ -214,14 +242,18 @@ components:
       properties:
         handshake_success:
           type: boolean
-          description: ハンドシェイクが成功したかどうか
-        application_response:
+          description: ハンドシェイクの成否を示します。成功時は常に true となります。
+          example: true
+        raw_client_hello:
           type: string
-          format: byte
-          description: サーバから受信し復号したアプリケーションデータ（Base64エンコード）
+          description: ClientHelloのバイト列 (hexエンコード)
         raw_server_response:
           type: string
-          description: サーバから受信した全データ（hex表示）
-        alert:
+          description: ServerHelloを含めたサーバー側の応答のバイト列 (hexエンコード)
+        raw_server_response_decoded:
           type: string
-          description: エラーがあればアラートメッセージ
+          description: ServerHelloを含めたサーバー側の応答のバイト列を復号化したもの
+        shared_secret:
+          type: string
+          description: ハンドシェイクで導出された共通鍵 (hexエンコード)
+        
