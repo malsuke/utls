@@ -1,0 +1,25 @@
+post:
+  summary: TLS 1.3 アプリケーションデータを送信
+  description: 指定した TLS 設定でサーバとハンドシェイクを行い、成功後にアプリケーションデータを送信してレスポンスを返します。
+  tags:
+    - TLS
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../schemas/request.yaml#/ApplicationRequest'
+  responses:
+    '200':
+      description: TLS アプリケーションデータ送信成功時のレスポンス
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/response.yaml#/ApplicationResponse'
+    '400':
+      description: リクエストパラメータが不正
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/response.yaml#/ErrorResponse'
+            

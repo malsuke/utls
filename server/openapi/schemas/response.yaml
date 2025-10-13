@@ -1,0 +1,39 @@
+ErrorResponse:
+  type: object
+  required:
+    - message
+  properties:
+    message:
+      type: string
+      description: エラーメッセージ
+
+HandshakeResponse:
+  type: object
+  description: TLSハンドシェイク成功時のレスポンス
+  required:
+    - raw_client_hello
+    - raw_server_response
+    - raw_server_response_decoded
+  properties:
+    raw_client_hello:
+      type: string
+      description: ClientHelloのバイト列 (hexエンコード)
+    raw_server_response:
+      type: string
+      description: ServerHelloを含めたサーバー側の応答のバイト列 (hexエンコード)
+    raw_server_response_decoded:
+      type: string
+      description: ServerHelloを含めたサーバー側の応答のバイト列を復号化したもの
+
+ApplicationResponse:
+  type: object
+  properties:
+    raw_client_application_data:
+      type: string
+      description: ClientHelloのバイト列 (hexエンコード)
+    raw_server_response:
+      type: string
+      description: ServerHelloを含めたサーバー側の応答のバイト列 (hexエンコード)
+    raw_server_response_decoded:
+      type: string
+      description: ServerHelloを含めたサーバー側の応答のバイト列を復号化したもの

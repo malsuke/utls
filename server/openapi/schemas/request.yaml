@@ -1,0 +1,75 @@
+HandshakeRequest:
+  allOf:
+    - $ref: '#/TlsClientParameters'
+  type: object
+
+ApplicationRequest:
+  allOf:
+    - $ref: '#/TlsClientParameters'
+  type: object
+
+TlsClientParameters:
+  type: object
+  required:
+    - protocol_version
+    - server_name
+    - client_random
+    - cipher_suites
+    - supported_groups
+    - key_shares
+    - signature_algorithms
+  properties:
+    protocol_version:
+      type: string
+      description: 使用する TLS バージョン
+      example: "0x0304"  # TLS 1.3
+    server_name:
+      type: string
+      description: Server Name Indication (SNI)拡張に設定するホスト名。指定しない場合は'server'の値が使用されます。
+      example: www.example.com
+    client_random:
+      type: string
+      description: クライアントの Random 値 (hex)
+      example: "deadbeefdeadbeef..."
+    cipher_suites:
+      type: array
+      description: 使用する Cipher Suite のリスト (16進数文字列)
+      items:
+        type: string
+      example:
+        - "0x1301"  # TLS_AES_128_GCM_SHA256
+        - "0x1302"  # TLS_AES_256_GCM_SHA384
+        - "0x1303"  # TLS_CHACHA20_POLY1305_SHA256
+    supported_groups:
+      type: array
+      description: サポートする楕円曲線 (KeyShare Group)
+      items:
+        type: string
+      example:
+        - "0x001d"  # X25519
+        - "0x0017"  # secp256r1
+        - "0x0018"  # secp384r1
+        - "0x0019"  # secp521r1
+    key_shares:
+      type: array
+      description: KeyShare に使うアルゴリズム (楕円曲線名)
+      items:
+        type: string
+      example:
+        - "0x001d"  # X25519
+        - "0x0017"  # secp256r1
+    signature_algorithms:
+      type: array
+      description: サポートする署名アルゴリズム
+      items:
+        type: string
+      example:
+        - "0x0403"  # ecdsa_secp256r1_sha256
+        - "0x0503"  # rsa_pss_rsae_sha256
+        - "0x0804"  # rsa_pss_pss_sha256
+    application_data:
+      type: string
+      description: 送信するアプリケーションデータ（HTTPプロトコル） 平文
+      example: "GET / HTTP/1.1\r\nHost: www.example.com\r\nConnection: close\r\n\r\n"
+    
+    

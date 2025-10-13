@@ -21,60 +21,18 @@ import (
 )
 
 // ApplicationRequest defines model for ApplicationRequest.
-type ApplicationRequest struct {
-	// CipherSuites 使用する Cipher Suite のリスト (16進数文字列)
-	CipherSuites []string `json:"cipher_suites"`
-
-	// ClientRandom クライアントの Random 値 (hex)
-	ClientRandom string `json:"client_random"`
-
-	// KeyShares KeyShare に使う鍵情報
-	KeyShares []KeyShare `json:"key_shares"`
-
-	// Port 接続先ポート
-	Port *int `json:"port,omitempty"`
-
-	// PrivateKey KeyShare に使う秘密鍵 (hex)
-	PrivateKey string `json:"private_key"`
-
-	// Server 接続先ホスト名またはIPアドレス
-	Server string `json:"server"`
-
-	// ServerName Server Name Indication (SNI)拡張に設定するホスト名。指定しない場合は'server'の値が使用されます。
-	ServerName string `json:"server_name"`
-
-	// SignatureAlgorithms サポートする署名アルゴリズム
-	SignatureAlgorithms []string `json:"signature_algorithms"`
-
-	// SupportedGroups サポートする楕円曲線 (KeyShare Group)
-	SupportedGroups []string `json:"supported_groups"`
-
-	// TlsVersions 使用する TLS バージョン
-	TlsVersions []string `json:"tls_versions"`
-}
+type ApplicationRequest = TlsClientParameters
 
 // ApplicationResponse defines model for ApplicationResponse.
 type ApplicationResponse struct {
-	// Alert エラーがあればアラートメッセージ
-	Alert *string `json:"alert,omitempty"`
+	// RawClientApplicationData ClientHelloのバイト列 (hexエンコード)
+	RawClientApplicationData *string `json:"raw_client_application_data,omitempty"`
 
-	// ApplicationResponse サーバから受信し復号したアプリケーションデータ（Base64エンコード）
-	ApplicationResponse *[]byte `json:"application_response,omitempty"`
-
-	// HandshakeSuccess ハンドシェイクが成功したかどうか
-	HandshakeSuccess *bool `json:"handshake_success,omitempty"`
-
-	// RawServerResponse サーバから受信した全データ（hex表示）
+	// RawServerResponse ServerHelloを含めたサーバー側の応答のバイト列 (hexエンコード)
 	RawServerResponse *string `json:"raw_server_response,omitempty"`
-}
 
-// ConnectionTarget defines model for ConnectionTarget.
-type ConnectionTarget struct {
-	// Port 接続先ポート
-	Port *int `json:"port,omitempty"`
-
-	// Server 接続先ホスト名またはIPアドレス
-	Server string `json:"server"`
+	// RawServerResponseDecoded ServerHelloを含めたサーバー側の応答のバイト列を復号化したもの
+	RawServerResponseDecoded *string `json:"raw_server_response_decoded,omitempty"`
 }
 
 // ErrorResponse defines model for ErrorResponse.
@@ -84,43 +42,10 @@ type ErrorResponse struct {
 }
 
 // HandshakeRequest defines model for HandshakeRequest.
-type HandshakeRequest struct {
-	// CipherSuites 使用する Cipher Suite のリスト (16進数文字列)
-	CipherSuites []string `json:"cipher_suites"`
-
-	// ClientRandom クライアントの Random 値 (hex)
-	ClientRandom string `json:"client_random"`
-
-	// KeyShares KeyShare に使う鍵情報
-	KeyShares []KeyShare `json:"key_shares"`
-
-	// Port 接続先ポート
-	Port *int `json:"port,omitempty"`
-
-	// PrivateKey KeyShare に使う秘密鍵 (hex)
-	PrivateKey string `json:"private_key"`
-
-	// Server 接続先ホスト名またはIPアドレス
-	Server string `json:"server"`
-
-	// ServerName Server Name Indication (SNI)拡張に設定するホスト名。指定しない場合は'server'の値が使用されます。
-	ServerName string `json:"server_name"`
-
-	// SignatureAlgorithms サポートする署名アルゴリズム
-	SignatureAlgorithms []string `json:"signature_algorithms"`
-
-	// SupportedGroups サポートする楕円曲線 (KeyShare Group)
-	SupportedGroups []string `json:"supported_groups"`
-
-	// TlsVersions 使用する TLS バージョン
-	TlsVersions []string `json:"tls_versions"`
-}
+type HandshakeRequest = TlsClientParameters
 
 // HandshakeResponse TLSハンドシェイク成功時のレスポンス
 type HandshakeResponse struct {
-	// HandshakeSuccess ハンドシェイクの成否を示します。成功時は常に true となります。
-	HandshakeSuccess bool `json:"handshake_success"`
-
 	// RawClientHello ClientHelloのバイト列 (hexエンコード)
 	RawClientHello string `json:"raw_client_hello"`
 
@@ -129,33 +54,24 @@ type HandshakeResponse struct {
 
 	// RawServerResponseDecoded ServerHelloを含めたサーバー側の応答のバイト列を復号化したもの
 	RawServerResponseDecoded string `json:"raw_server_response_decoded"`
-
-	// SharedSecret ハンドシェイクで導出された共通鍵 (hexエンコード)
-	SharedSecret string `json:"shared_secret"`
-}
-
-// KeyShare defines model for KeyShare.
-type KeyShare struct {
-	// Data 公開鍵データ（hex 文字列）
-	Data *string `json:"data,omitempty"`
-
-	// Group 曲線名
-	Group string `json:"group"`
 }
 
 // TlsClientParameters defines model for TlsClientParameters.
 type TlsClientParameters struct {
+	// ApplicationData 送信するアプリケーションデータ（HTTPプロトコル） 平文
+	ApplicationData *string `json:"application_data,omitempty"`
+
 	// CipherSuites 使用する Cipher Suite のリスト (16進数文字列)
 	CipherSuites []string `json:"cipher_suites"`
 
 	// ClientRandom クライアントの Random 値 (hex)
 	ClientRandom string `json:"client_random"`
 
-	// KeyShares KeyShare に使う鍵情報
-	KeyShares []KeyShare `json:"key_shares"`
+	// KeyShares KeyShare に使うアルゴリズム (楕円曲線名)
+	KeyShares []string `json:"key_shares"`
 
-	// PrivateKey KeyShare に使う秘密鍵 (hex)
-	PrivateKey string `json:"private_key"`
+	// ProtocolVersion 使用する TLS バージョン
+	ProtocolVersion string `json:"protocol_version"`
 
 	// ServerName Server Name Indication (SNI)拡張に設定するホスト名。指定しない場合は'server'の値が使用されます。
 	ServerName string `json:"server_name"`
@@ -165,9 +81,6 @@ type TlsClientParameters struct {
 
 	// SupportedGroups サポートする楕円曲線 (KeyShare Group)
 	SupportedGroups []string `json:"supported_groups"`
-
-	// TlsVersions 使用する TLS バージョン
-	TlsVersions []string `json:"tls_versions"`
 }
 
 // PostTlsApplicationJSONRequestBody defines body for PostTlsApplication for application/json ContentType.
@@ -447,7 +360,6 @@ type PostTlsApplicationResponse struct {
 	HTTPResponse *http.Response
 	JSON200      *ApplicationResponse
 	JSON400      *ErrorResponse
-	JSON500      *ErrorResponse
 }
 
 // Status returns HTTPResponse.Status
@@ -471,7 +383,6 @@ type PostTlsHandshakeResponse struct {
 	HTTPResponse *http.Response
 	JSON200      *HandshakeResponse
 	JSON400      *ErrorResponse
-	JSON500      *ErrorResponse
 }
 
 // Status returns HTTPResponse.Status
@@ -552,13 +463,6 @@ func ParsePostTlsApplicationResponse(rsp *http.Response) (*PostTlsApplicationRes
 		}
 		response.JSON400 = &dest
 
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
-		var dest ErrorResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON500 = &dest
-
 	}
 
 	return response, nil
@@ -591,13 +495,6 @@ func ParsePostTlsHandshakeResponse(rsp *http.Response) (*PostTlsHandshakeRespons
 			return nil, err
 		}
 		response.JSON400 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
-		var dest ErrorResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON500 = &dest
 
 	}
 
@@ -673,38 +570,31 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/+xY71MTSRr+V6b6rmq1KhWGBT0uVffB5Vyl1vJQ8L54VqrJNMnoZGa2u4NQFlX0zAJh",
-	"CWuOU3OLu4fssYKygL84XQ/hj2knkU/7L1x1TyYkmUmCnO59uU8MnZl+n/fp53n77b4FUlbWtkxkUgIS",
-	"twBJZVAWyscztm3oKUh1y7yMvswhQsUoNIw/jYLE1VvgtxiNggT4TdfhDF3Vz7v6LdNEKfHpMMRpRMFk",
-	"rP0HwwbpN3Rk0kGIYRZRhAmYvBYDNrZshKmOJCR4CCmpQQrFmIZICuu2GAMJUF4qebdfeoV7nJU4e3gw",
-	"xd7ur3D2LXfmzw8PD3J3hbsud/7N3V3uvOLsMWePONvizg/cLXH3MXeeyp9ecneNu8+5Oyv/3f9lN/8Z",
-	"JOh0L3fWxbjzXIy7c7/szoEYQOMwaxsIJMBl9c9XBvr70kOfX75ypb9v/ML1sxf7b2TGUj2XTg+c13q0",
-	"iVMGOvc5TZ0bNy5kL46NXFK/+OMl6w8gBkYtnIUUJMDIBEUgBuiELWYkFOtmGkxOxgBGX+Z0jDSQuBqm",
-	"4lrtC2vkOkoJyhuXkNiWSZCgrIlUA2EaZlIm+khkyQqcOdwpcPZE8iQH3XwTl2HEsQaQuA5Ac6QdOWOR",
-	"s3nuzHm3S3LNSt7eI+/2S7mQy//lAnXgNgYy0NRIBt5ASZJLpRAhETDd2zLgnAjurHFnlTvbnBXK+aL3",
-	"9XIVJpuXgprhbP4wzIhlGQiaIg6GN5ME4TGEj0EIZ8ve9Hp9yhk0/m5lvbL62k8zLJmQJELODOnBtgI5",
-	"jMKcQUGit7cn1myzb36s/GvJm85z93tfDYfRdZOiNMIimJ9phEsPP7/PnZ+5m/eKC5ztSQa3Bwblas9x",
-	"9yfu/Nxgr5s3b8ar/8VTVrajS6oAorxxFmMLt3ZFFhEC06idLzrpvwlLMGMUmPOB/P53lbYdplZCHb4w",
-	"FOkK3xLlbx1RWuUqSp0895ezkejjO29LhCk+5M5iZfW1tMeeqPRTTl34be/VK842FIpzSOFsXVR85+va",
-	"m/XiEq+0smxKMpbMIMOwwvh8Ps+LH2XCRYHQzXv5knIig8abKtLJqPpzpLowJF/w4ziLXnGDO0zWxqBc",
-	"uLsee8HZlrf/XWXzzgfEktRQytKEjj8sJvGJrPLBjr3MHSGaKFgkAzHSkgSlMKJHFsma9+Qbb/Y1Z3fl",
-	"DrbsTT89mFo6WNg5Ih1NJg6rNUIg0cvZntjm/KIc+QWaGBIvhatVdDPkTf90cG/+YGGnactQyvdmvc2S",
-	"ly81ty8agtoIQqPB33g8HrUUaWzl7Iiyfv9Z5eWSV1xomFMdV9VurSOz/pxRaUdVrBADKd3OIJwkOZ2i",
-	"iBLy9s1+5c663wgq/fJdZUi8q0hFPvZ3IeVE9+mDqWflu09qDJ2sz+UqUMe7e9RuEPMfPg0eegRwnaKs",
-	"DB3iqzoAMYYT4v+qWjA0NSsbtcVsiy1GKPgHqek8Z1vKZfm24k2tSumePM7C3UATSamzCIoCdSmcbbx9",
-	"s8/ZzMHCTtmd9h48BXXJtdtbagKNyNnG+hikKHkDTRwldmXt7972TODTYyVbtZoJsy1rqXIRZpEyYGrV",
-	"LlU5MXRx4GR5fsXb3eFs4936pre15KumoVWZcsqFWflTSZ4hvvIevPCKec62P/GjfiIq3tQqZ4VAeX79",
-	"idh3Ojc1MUD0tAlpDqMkNNIW1mkmS1r0jdV+zAddefNMwBUy2uDOCyn019x90CxqtVftkVpWTwUPfWrv",
-	"+4ma5GzROiItKa18JHzlH+96MzN+3VBO1FRwTkwQcl61jMiH3wUPfcHD798PLTVIcgxholsmaeh2r4qu",
-	"pjsuHd2mhgxfGFL87U2cI+VZBBw9fmSb6iu1uTrEmkpbBNENvm4hlqaMG/0YrroCoW6ORjQ73ubDyv6i",
-	"JGLLZyFUrc4MDnC25iu9odiSmHJ2nCJTYogpwXoTpXoQdxbfzT6u3HnK2Uadvx7KMN3xHiV6j3cWva3l",
-	"dysFGXOh5rG/mCJpnUqPiRkuIIhN3UwrZwYHQAxUuQAJ0B1X46pYJMtGJrR1kAA98e64KliCNCMXtIsa",
-	"pKvuPOuflEhEI1KHfFkiD6rIWt25br1VKjKPr/gU85tYb6/A2UbH0y93FoOrDkFYU88tpt2/U98hA5kr",
-	"lpkMaCABBi1Chw1Sd2EAfIkiQj+zNFmyU5ZJkUmbLmK6rhOfDX8T6LRFRNwqTTbaQfThcsDvkCT7n6rq",
-	"x0FQ7c0khNDZRunIu096u+POZAz0fkDwjafWCNgS7Lboa+Vmxd2/ytPqSlUnrPD21UJ5858C16lfFVeg",
-	"fW9m+sBdr52iZS0kuWwW4okq69LpR1a8MDlMk2rhBtfEfNKstVb9o1uVs+8526rsFMv/+C7stVanV872",
-	"ZaBOibLtOmvvcXafO39rY+Hasf0jGTh0VfEr2zd8LdHKvO97M/F/qx7Pqm035bA9a505kZdbOWyABMhQ",
-	"aie6ugwrBY2MRWiiT+1TweS1yf8EAAD//zotBc6hGAAA",
+	"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",
+	"TDuLzby8jXTr3Toauzj2ZwAAAP//hbqWoN0SAAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

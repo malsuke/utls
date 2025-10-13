@@ -1,0 +1,25 @@
+post:
+  summary: TLS 1.3 ハンドシェイクを実行
+  description: 指定した TLS 設定でサーバとハンドシェイクを行い、その結果を返します。ハンドシェイクのみでアプリケーションデータは送信しません。
+  tags:
+    - TLS
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../schemas/request.yaml#/HandshakeRequest'
+  responses:
+    '200':
+      description: TLS ハンドシェイク成功時のレスポンス
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/response.yaml#/HandshakeResponse'
+    '400':
+      description: リクエストパラメータが不正
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/response.yaml#/ErrorResponse'
+            
