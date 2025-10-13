@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/hex"
-	"encoding/json"
 	"fmt"
 	"net"
 	"os"
@@ -21,28 +20,36 @@ func (s Server) PostTlsHandshake(ctx echo.Context) error {
 		return ctx.JSON(400, "Invalid payload")
 	}
 
-	var serverResponse []byte
-	conn, err := net.DialTimeout("tcp", payload.Server+":"+fmt.Sprintf("%d", *payload.Port), 5*time.Second)
+	// 接続先ホストはServerNameを使い、ポートは443をデフォルトとする
+	conn, err := net.DialTimeout("tcp", payload.ServerName+":443", 5*time.Second)
 	if err != nil {
 		return ctx.JSON(500, fmt.Sprintf("net.Dial error: %v", err))
 	}
 	defer conn.Close()
 
-	spec := createClientHelloSpec(payload)
+	spec, err := createClientHelloSpec(payload)
+	if err != nil {
+		return ctx.JSON(400, fmt.Sprintf("createClientHelloSpec error: %v", err))
+	}
 
+	var serverResponse []byte
 	config := &utls.Config{
-		ServerName:     payload.Server,
+		ServerName:     payload.ServerName,
 		ServerResponse: &serverResponse,
 		KeyLogWriter:   os.Stderr,
 		MinVersion:     utls.VersionTLS13,
 		MaxVersion:     utls.VersionTLS13,
 	}
 	uconn := utls.UClient(conn, config, utls.HelloCustom)
-	if err := uconn.ApplyPreset(&spec); err != nil {
+	if err := uconn.ApplyPreset(spec); err != nil {
 		return ctx.JSON(500, fmt.Sprintf("ApplyPreset error: %v", err))
 	}
 
-	if err := uconn.SetClientRandom([]byte(payload.ClientRandom)); err != nil {
+	clientRandom, err := hex.DecodeString(payload.ClientRandom)
+	if err != nil {
+		return ctx.JSON(400, fmt.Sprintf("Invalid ClientRandom: %v", err))
+	}
+	if err := uconn.SetClientRandom(clientRandom); err != nil {
 		return ctx.JSON(500, fmt.Sprintf("SetClientRandom error: %v", err))
 	}
 
@@ -50,115 +57,88 @@ func (s Server) PostTlsHandshake(ctx echo.Context) error {
 		return ctx.JSON(500, fmt.Sprintf("uconn.Handshake() error: %v", err))
 	}
 
-	// fmt.Println(hex.Dump(utls.FullRecordBytes))
-
-	responseBytes, err := json.Marshal(openapi.HandshakeResponse{
-		HandshakeSuccess:         true,
+	response := openapi.HandshakeResponse{
 		RawClientHello:           hex.EncodeToString(convertRecordbytes(utls.ClientHelloRaw)),
 		RawServerResponse:        hex.EncodeToString(serverResponse),
 		RawServerResponseDecoded: hex.EncodeToString(utls.FullRecordBytes),
-	})
-	if err != nil {
-		return ctx.JSON(500, fmt.Sprintf("json.Marshal error: %v", err))
 	}
-	return ctx.JSON(200, json.RawMessage(responseBytes))
 
-	// fmt.Println("✅ TLS Handshake successful")
-
-	// if serverResponse != nil {
-	// 	fmt.Println("--- ServerResponse bytes ---")
-	// 	fmt.Print(hex.Dump(serverResponse))
-	// 	fmt.Println("--------------------------")
-	// }
-
-	// requestBuilder := &strings.Builder{}
-	// requestBuilder.WriteString("GET / HTTP/1.1\r\n")
-	// requestBuilder.WriteString("Host: " + payload.Server + "\r\n")
-	// requestBuilder.WriteString("User-Agent: my-raw-client/1.0\r\n")
-	// requestBuilder.WriteString("Connection: close\r\n")
-	// requestBuilder.WriteString("\r\n")
-
-	// request := requestBuilder.String()
-	// fmt.Println("--- Sending Request ---")
-	// fmt.Print(request)
-	// fmt.Println("-----------------------")
-
-	// _, err = uconn.Write([]byte(request))
-	// if err != nil {
-	// 	fmt.Printf("uconn.Write() error: %v\n", err)
-	// 	return ctx.JSON(500, "No")
-	// }
-
-	// response, err := io.ReadAll(uconn)
-	// if err != nil {
-	// 	fmt.Printf("io.ReadAll(uconn) error: %v\n", err)
-	// 	return ctx.JSON(500, "No")
-	// }
-
-	// fmt.Println("\n--- Raw Response ---")
-	// fmt.Println(string(response))
-	// fmt.Println("--------------------")
+	return ctx.JSON(200, response)
 }
 
-func createClientHelloSpec(payload openapi.HandshakeRequest) utls.ClientHelloSpec {
+func createClientHelloSpec(payload openapi.TlsClientParameters) (*utls.ClientHelloSpec, error) {
 	keyShares := make([]utls.KeyShare, len(payload.KeyShares))
-
 	for i, v := range payload.KeyShares {
+		val, err := stringToUint16(v)
+		if err != nil {
+			return nil, fmt.Errorf("invalid key share: %s", v)
+		}
 		keyShares[i] = utls.KeyShare{
-			Group: utls.CurveID(stringToUint16(v.Group)),
-			// Data:  []byte(v.Data),
+			Group: utls.CurveID(val),
 		}
 	}
 
-	var cipherSuites []uint16 = make([]uint16, len(payload.CipherSuites))
+	cipherSuites := make([]uint16, len(payload.CipherSuites))
 	for i, v := range payload.CipherSuites {
-		cipherSuites[i] = stringToUint16(v)
+		val, err := stringToUint16(v)
+		if err != nil {
+			return nil, fmt.Errorf("invalid cipher suite: %s", v)
+		}
+		cipherSuites[i] = val
 	}
 
-	var supportedCurves []utls.CurveID = make([]utls.CurveID, len(payload.SupportedGroups))
+	supportedCurves := make([]utls.CurveID, len(payload.SupportedGroups))
 	for i, v := range payload.SupportedGroups {
-		supportedCurves[i] = utls.CurveID(stringToUint16(v))
+		val, err := stringToUint16(v)
+		if err != nil {
+			return nil, fmt.Errorf("invalid supported group: %s", v)
+		}
+		supportedCurves[i] = utls.CurveID(val)
 	}
 
-	var supportedSignatureAlgorithms = make([]utls.SignatureScheme, len(payload.SignatureAlgorithms))
+	supportedSignatureAlgorithms := make([]utls.SignatureScheme, len(payload.SignatureAlgorithms))
 	for i, v := range payload.SignatureAlgorithms {
-		supportedSignatureAlgorithms[i] = utls.SignatureScheme(stringToUint16(v))
+		val, err := stringToUint16(v)
+		if err != nil {
+			return nil, fmt.Errorf("invalid signature algorithm: %s", v)
+		}
+		supportedSignatureAlgorithms[i] = utls.SignatureScheme(val)
 	}
 
-	var supportedTLSVersions []uint16 = make([]uint16, len(payload.TlsVersions))
-	for i, v := range payload.TlsVersions {
-		supportedTLSVersions[i] = stringToUint16(v)
+	protocolVersion, err := stringToUint16(payload.ProtocolVersion)
+	if err != nil {
+		return nil, fmt.Errorf("invalid protocol version: %s", payload.ProtocolVersion)
 	}
 
-	spec := utls.ClientHelloSpec{
+	spec := &utls.ClientHelloSpec{
 		CipherSuites: cipherSuites,
 		Extensions: []utls.TLSExtension{
 			&utls.SNIExtension{ServerName: payload.ServerName},
-			&utls.SupportedCurvesExtension{ // supported_groupsと同じ
+			&utls.SupportedCurvesExtension{
 				Curves: supportedCurves,
 			},
 			&utls.KeyShareExtension{KeyShares: keyShares},
 			&utls.SignatureAlgorithmsExtension{
 				SupportedSignatureAlgorithms: supportedSignatureAlgorithms,
 			},
-			&utls.SupportedVersionsExtension{Versions: supportedTLSVersions},
+			&utls.SupportedVersionsExtension{Versions: []uint16{protocolVersion}},
 		},
 	}
 
-	return spec
+	return spec, nil
 }
 
 /**
  * 0xから始まる16進数文字列をuint16に変換する
  * 例: "0x1301" -> 4865
  */
-func stringToUint16(s string) uint16 {
+func stringToUint16(s string) (uint16, error) {
 	var result uint16
 	_, err := fmt.Sscanf(s, "0x%04x", &result)
 	if err != nil {
-		return 0
+		return 0, err
 	}
-	return result
+	return result, nil
 }
 
 // ClientHelloRawをRecord Layerの形式に変換する
