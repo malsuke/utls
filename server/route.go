@@ -13,5 +13,5 @@ func Run() {
 	server := handler.Server{}
 	e.Static("/static", "out/")
 	openapi.RegisterHandlers(e, server)
-	e.Logger.Fatal(e.Start(":8080"))
+	e.Logger.Fatal(e.Start(":80"))
 }
