@@ -1,22 +1,34 @@
 package extensions
 
-import "github.com/refraction-networking/utls/server/mytls/internal/common"
+import (
+	"encoding/binary"
+
+	"github.com/refraction-networking/utls/server/mytls/internal/common"
+)
+
+// KeyShareEntry は、Key Share Extension 内の単一のエントリを表します。
+type KeyShareEntry struct {
+	Group       uint16
+	KeyExchange []byte
+}
 
 /**
  * @see https://datatracker.ietf.org/doc/html/rfc8446#section-4.2.8
  */
-func NewKeyShareExtension(publicKey []byte) *Extension {
-	var payload []byte
-	keyShareEntryLength := 2 + 2 + len(publicKey) // group + key_exchange_length + key_exchange
+func NewKeyShareExtension(clientShares []KeyShareEntry) *Extension {
+	var keyShareBytes []byte
+	for _, share := range clientShares {
+		entryBytes := make([]byte, 4+len(share.KeyExchange))
+		binary.BigEndian.PutUint16(entryBytes[0:], share.Group)
+		binary.BigEndian.PutUint16(entryBytes[2:], uint16(len(share.KeyExchange)))
+		copy(entryBytes[4:], share.KeyExchange)
+		keyShareBytes = append(keyShareBytes, entryBytes...)
+	}
 
-	// client_shares length (2 bytes)
-	payload = append(payload, byte(keyShareEntryLength>>8), byte(keyShareEntryLength&0xff))
-	// group: x25519 (0x001d)
-	payload = append(payload, common.EncodeUint16ToBytes(uint16(common.X25519))...)
-	// key_exchange length (2 bytes)
-	payload = append(payload, byte(len(publicKey)>>8), byte(len(publicKey)&0xff))
-	// key_exchange (public key)
-	payload = append(payload, publicKey...)
+	// The client_shares vector is prefixed with a uint16 length field.
+	payload := make([]byte, 2+len(keyShareBytes))
+	binary.BigEndian.PutUint16(payload[0:], uint16(len(keyShareBytes)))
+	copy(payload[2:], keyShareBytes)
 
 	return &Extension{
 		Type:    common.KeyShareExtensionType,

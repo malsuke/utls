@@ -21,10 +21,9 @@ func handleBadRequest(ctx echo.Context, originalError error, params openapi.TlsC
 	sent, received, mytlsErr := mytls.PerformHandshake(params)
 
 	response := map[string]interface{}{
-		"error":          "Bad Request",
-		"original_error": originalError.Error(),
-		"mytls_sent":     hex.EncodeToString(sent),
-		"mytls_received": hex.EncodeToString(received),
+		"message":             originalError.Error(),
+		"raw_client_hello":    hex.EncodeToString(sent),
+		"raw_server_response": hex.EncodeToString(received),
 	}
 	if mytlsErr != nil {
 		response["mytls_error"] = mytlsErr.Error()
