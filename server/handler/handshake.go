@@ -36,8 +36,7 @@ func handleBadRequest(ctx echo.Context, originalError error, params openapi.TlsC
 func (s Server) PostTlsHandshake(ctx echo.Context) error {
 	var payload openapi.HandshakeRequest
 	if err := ctx.Bind(&payload); err != nil {
-		// payloadがbindできない場合、TlsClientParametersが空の状態でmytlsを試行
-		return handleBadRequest(ctx, fmt.Errorf("invalid payload: %w", err), openapi.TlsClientParameters{})
+		return handleBadRequest(ctx, fmt.Errorf("invalid payload: %w", err), payload)
 	}
 
 	spec, err := createClientHelloSpec(payload)
@@ -67,15 +66,18 @@ func (s Server) PostTlsHandshake(ctx echo.Context) error {
 	}
 	uconn := utls.UClient(conn, config, utls.HelloCustom)
 	if err := uconn.ApplyPreset(spec); err != nil {
-		return ctx.JSON(500, fmt.Sprintf("ApplyPreset error: %v", err))
+		return handleBadRequest(ctx, fmt.Errorf("invalid payload: %w", err), payload)
+		// return ctx.JSON(500, fmt.Sprintf("ApplyPreset error: %v", err))
 	}
 
 	if err := uconn.SetClientRandom(clientRandom); err != nil {
-		return ctx.JSON(500, fmt.Sprintf("SetClientRandom error: %v", err))
+		return handleBadRequest(ctx, fmt.Errorf("invalid payload: %w", err), payload)
+		// return ctx.JSON(500, fmt.Sprintf("SetClientRandom error: %v", err))
 	}
 
 	if err := uconn.Handshake(); err != nil {
-		return ctx.JSON(500, fmt.Sprintf("uconn.Handshake() error: %v", err))
+		return handleBadRequest(ctx, fmt.Errorf("invalid payload: %w", err), payload)
+		// return ctx.JSON(500, fmt.Sprintf("uconn.Handshake() error: %v", err))
 	}
 
 	response := openapi.HandshakeResponse{

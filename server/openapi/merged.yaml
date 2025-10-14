@@ -175,7 +175,16 @@ components:
       type: object
       required:
         - message
+        - raw_client_hello
+        - raw_server_response
       properties:
         message:
           type: string
           description: エラーメッセージ
+        raw_client_hello:
+          type: string
+          description: ClientHelloのバイト列 (hexエンコード)
+        raw_server_response:
+          type: string
+          description: ServerHelloを含めたサーバー側の応答のバイト列 (hexエンコード)
+        

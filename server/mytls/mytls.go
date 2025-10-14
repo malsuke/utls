@@ -26,6 +26,7 @@ func GenEcdhX25519() (*ecdh.PrivateKey, *ecdh.PublicKey, error) {
 // PerformHandshake は、指定されたTLSパラメータを使用して独自のTLS実装でハンドシェイクを実行し、
 // サーバーからの生の応答バイト列を返します。
 func PerformHandshake(params openapi.TlsClientParameters) ([]byte, []byte, error) {
+	fmt.Println("PerformHandshake called with params:", params.ServerName)
 	conn, err := tcp.Conn(params.ServerName, 443) // ポートは443で固定
 	if err != nil {
 		return nil, nil, fmt.Errorf("tcp.Conn error: %w", err)
