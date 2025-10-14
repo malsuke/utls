@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"crypto/ecdh"
 	"crypto/rand"
 	"encoding/hex"
@@ -15,6 +16,40 @@ import (
 	utls "github.com/refraction-networking/utls"
 )
 
+// TeeConn wraps a net.Conn to tee its reads into a buffer.
+type TeeConn struct {
+	net.Conn
+	readBuffer *bytes.Buffer
+}
+
+// NewTeeConn creates a new TeeConn.
+func NewTeeConn(conn net.Conn) *TeeConn {
+	return &TeeConn{
+		Conn:       conn,
+		readBuffer: new(bytes.Buffer),
+	}
+}
+
+// Read reads data from the connection and writes a copy to the buffer.
+func (c *TeeConn) Read(p []byte) (n int, err error) {
+	n, err = c.Conn.Read(p)
+	if n > 0 {
+		// The buffer captures everything read from the underlying connection.
+		c.readBuffer.Write(p[:n])
+	}
+	return
+}
+
+// GetReadData returns the data that was read from the connection.
+func (c *TeeConn) GetReadData() []byte {
+	return c.readBuffer.Bytes()
+}
+
+// ResetBuffer clears the internal buffer.
+func (c *TeeConn) ResetBuffer() {
+	c.readBuffer.Reset()
+}
+
 func main() {
 	var serverResponse []byte
 	targetURL := "www.example.com"
@@ -22,7 +57,6 @@ func main() {
 
 	// 1. 鍵ペアの作成 (変更なし)
 	privateKey, err := ecdh.X25519().GenerateKey(rand.Reader)
-	fmt.Println(hex.Dump(privateKey.PublicKey().Bytes()))
 	if err != nil {
 		fmt.Printf("Failed to generate X25519 key pair: %v\n", err)
 		return
@@ -66,6 +100,9 @@ func main() {
 	}
 	defer conn.Close()
 
+	// Wrap the connection to tee the reads
+	teeConn := NewTeeConn(conn)
+
 	config := &utls.Config{
 		ServerName:     targetURL,
 		ServerResponse: &serverResponse,
@@ -73,7 +110,7 @@ func main() {
 		MinVersion:     utls.VersionTLS13,
 		MaxVersion:     utls.VersionTLS13,
 	}
-	uconn := utls.UClient(conn, config, utls.HelloCustom)
+	uconn := utls.UClient(teeConn, config, utls.HelloCustom)
 	if err := uconn.ApplyPreset(&spec); err != nil {
 		fmt.Printf("ApplyPreset error: %v\n", err)
 		return
@@ -106,6 +143,10 @@ func main() {
 		return
 	}
 
+	// Handshake is complete. Reset the buffer in teeConn to capture only the
+	// reads that happen from this point forward (i.e., application data).
+	teeConn.ResetBuffer()
+
 	fmt.Print(hex.Dump(tls.ClientHelloRaw))
 	fmt.Println("✅ TLS Handshake successful")
 
@@ -133,13 +174,22 @@ func main() {
 		return
 	}
 
-	response, err := io.ReadAll(uconn)
+	// Now, when we read from uconn, it will internally read from teeConn.
+	// teeConn will capture the encrypted data before it's decrypted by uconn.
+	decryptedResponse, err := io.ReadAll(uconn)
 	if err != nil {
 		fmt.Printf("io.ReadAll(uconn) error: %v\n", err)
 		return
 	}
 
-	fmt.Println("\n--- Raw Response ---")
-	fmt.Println(string(response))
+	// Get the encrypted data that was captured by the tee.
+	encryptedResponse := teeConn.GetReadData()
+
+	fmt.Println("\n--- Encrypted Response ---")
+	fmt.Print(hex.Dump(encryptedResponse))
+	fmt.Println("--------------------------")
+
+	fmt.Println("\n--- Decrypted Response ---")
+	fmt.Println(string(decryptedResponse))
 	fmt.Println("--------------------")
 }

@@ -20,7 +20,6 @@ func (s Server) PostTlsHandshake(ctx echo.Context) error {
 		return ctx.JSON(400, "Invalid payload")
 	}
 
-	// 接続先ホストはServerNameを使い、ポートは443をデフォルトとする
 	conn, err := net.DialTimeout("tcp", payload.ServerName+":443", 5*time.Second)
 	if err != nil {
 		return ctx.JSON(500, fmt.Sprintf("net.Dial error: %v", err))

@@ -149,14 +149,26 @@ components:
           description: ServerHelloを含めたサーバー側の応答のバイト列を復号化したもの
     ApplicationResponse:
       type: object
+      required:
+        - raw_client_hello
+        - raw_server_response
+        - raw_server_response_decoded
+        - raw_server_application_data_response
+        - raw_server_application_data_response_decoded
       properties:
-        raw_client_application_data:
+        raw_client_hello:
           type: string
           description: ClientHelloのバイト列 (hexエンコード)
         raw_server_response:
           type: string
           description: ServerHelloを含めたサーバー側の応答のバイト列 (hexエンコード)
         raw_server_response_decoded:
+          type: string
+          description: ServerHelloを含めたサーバー側の応答のバイト列を復号化したもの
+        raw_server_application_data_response:
+          type: string
+          description: ServerHelloを含めたサーバー側の応答のバイト列 (hexエンコード)
+        raw_server_application_data_response_decoded:
           type: string
           description: ServerHelloを含めたサーバー側の応答のバイト列を復号化したもの
     ErrorResponse:
