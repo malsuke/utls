@@ -4,7 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 
-	"github.com/cysec-dev/tls-golang-book/internal/common"
+	"github.com/refraction-networking/utls/server/mytls/internal/common"
 )
 
 type Record struct {

@@ -9,27 +9,53 @@ import (
 
 	"github.com/labstack/echo/v4"
 	utls "github.com/refraction-networking/utls"
+	"github.com/refraction-networking/utls/server/mytls"
 	"github.com/refraction-networking/utls/server/openapi"
 )
 
 type Server struct{}
 
+// handleBadRequest は、リクエスト処理中にエラーが発生した場合に、
+// mytlsでの通信試行結果を含めたエラーレスポンスを返します。
+func handleBadRequest(ctx echo.Context, originalError error, params openapi.TlsClientParameters) error {
+	sent, received, mytlsErr := mytls.PerformHandshake(params)
+
+	response := map[string]interface{}{
+		"error":          "Bad Request",
+		"original_error": originalError.Error(),
+		"mytls_sent":     hex.EncodeToString(sent),
+		"mytls_received": hex.EncodeToString(received),
+	}
+	if mytlsErr != nil {
+		response["mytls_error"] = mytlsErr.Error()
+	}
+
+	return ctx.JSON(400, response)
+}
+
 func (s Server) PostTlsHandshake(ctx echo.Context) error {
 	var payload openapi.HandshakeRequest
 	if err := ctx.Bind(&payload); err != nil {
-		return ctx.JSON(400, "Invalid payload")
+		// payloadがbindできない場合、TlsClientParametersが空の状態でmytlsを試行
+		return handleBadRequest(ctx, fmt.Errorf("invalid payload: %w", err), openapi.TlsClientParameters{})
 	}
 
+	spec, err := createClientHelloSpec(payload)
+	if err != nil {
+		return handleBadRequest(ctx, err, payload)
+	}
+
+	clientRandom, err := hex.DecodeString(payload.ClientRandom)
+	if err != nil {
+		return handleBadRequest(ctx, fmt.Errorf("invalid ClientRandom: %w", err), payload)
+	}
+
+	// 接続先ホストはServerNameを使い、ポートは443をデフォルトとする
 	conn, err := net.DialTimeout("tcp", payload.ServerName+":443", 5*time.Second)
 	if err != nil {
 		return ctx.JSON(500, fmt.Sprintf("net.Dial error: %v", err))
 	}
 	defer conn.Close()
-
-	spec, err := createClientHelloSpec(payload)
-	if err != nil {
-		return ctx.JSON(400, fmt.Sprintf("createClientHelloSpec error: %v", err))
-	}
 
 	var serverResponse []byte
 	config := &utls.Config{
@@ -44,10 +70,6 @@ func (s Server) PostTlsHandshake(ctx echo.Context) error {
 		return ctx.JSON(500, fmt.Sprintf("ApplyPreset error: %v", err))
 	}
 
-	clientRandom, err := hex.DecodeString(payload.ClientRandom)
-	if err != nil {
-		return ctx.JSON(400, fmt.Sprintf("Invalid ClientRandom: %v", err))
-	}
 	if err := uconn.SetClientRandom(clientRandom); err != nil {
 		return ctx.JSON(500, fmt.Sprintf("SetClientRandom error: %v", err))
 	}
@@ -104,6 +126,11 @@ func createClientHelloSpec(payload openapi.TlsClientParameters) (*utls.ClientHel
 		supportedSignatureAlgorithms[i] = utls.SignatureScheme(val)
 	}
 
+	protocolVersion, err := stringToUint16(payload.ProtocolVersion)
+	if err != nil {
+		return nil, fmt.Errorf("invalid protocol version: %s", payload.ProtocolVersion)
+	}
+
 	spec := &utls.ClientHelloSpec{
 		CipherSuites: cipherSuites,
 		Extensions: []utls.TLSExtension{
@@ -115,7 +142,7 @@ func createClientHelloSpec(payload openapi.TlsClientParameters) (*utls.ClientHel
 			&utls.SignatureAlgorithmsExtension{
 				SupportedSignatureAlgorithms: supportedSignatureAlgorithms,
 			},
-			&utls.SupportedVersionsExtension{Versions: []uint16{utls.VersionTLS13}},
+			&utls.SupportedVersionsExtension{Versions: []uint16{protocolVersion}},
 		},
 	}
 

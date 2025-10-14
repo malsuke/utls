@@ -3,7 +3,7 @@ package tcp_test
 import (
 	"testing"
 
-	"github.com/cysec-dev/tls-golang-book/internal/tcp"
+	"github.com/refraction-networking/utls/server/mytls/internal/tcp"
 )
 
 func TestConn(t *testing.T) {

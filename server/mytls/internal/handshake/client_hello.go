@@ -3,9 +3,9 @@ package handshake
 import (
 	"fmt"
 
-	"github.com/cysec-dev/tls-golang-book/internal/common"
-	"github.com/cysec-dev/tls-golang-book/internal/crypto"
-	"github.com/cysec-dev/tls-golang-book/internal/handshake/extensions"
+	"github.com/refraction-networking/utls/server/mytls/internal/common"
+	"github.com/refraction-networking/utls/server/mytls/internal/crypto"
+	"github.com/refraction-networking/utls/server/mytls/internal/handshake/extensions"
 )
 
 /**

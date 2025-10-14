@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/cysec-dev/tls-golang-book/internal/common"
+	"github.com/refraction-networking/utls/server/mytls/internal/common"
 )
 
 func TestNewTLSRecord(t *testing.T) {

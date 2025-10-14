@@ -1,6 +1,6 @@
 package extensions
 
-import "github.com/cysec-dev/tls-golang-book/internal/common"
+import "github.com/refraction-networking/utls/server/mytls/internal/common"
 
 /**
  * @see https://datatracker.ietf.org/doc/html/rfc8446#section-4.2.1

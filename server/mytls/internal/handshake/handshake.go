@@ -1,6 +1,6 @@
 package handshake
 
-import "github.com/cysec-dev/tls-golang-book/internal/common"
+import "github.com/refraction-networking/utls/server/mytls/internal/common"
 
 type Handshake struct {
 	HandshakeType common.HandshakeType

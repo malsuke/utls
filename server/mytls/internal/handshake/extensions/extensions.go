@@ -3,7 +3,7 @@ package extensions
 import (
 	"fmt"
 
-	"github.com/cysec-dev/tls-golang-book/internal/common"
+	"github.com/refraction-networking/utls/server/mytls/internal/common"
 )
 
 type Extension struct {

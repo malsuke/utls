@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/cysec-dev/tls-golang-book/internal/common"
-	"github.com/cysec-dev/tls-golang-book/internal/handshake"
-	"github.com/cysec-dev/tls-golang-book/internal/handshake/extensions"
+	"github.com/refraction-networking/utls/server/mytls/internal/common"
+	"github.com/refraction-networking/utls/server/mytls/internal/handshake"
+	"github.com/refraction-networking/utls/server/mytls/internal/handshake/extensions"
 )
 
 func TestNewClientHello(t *testing.T) {
