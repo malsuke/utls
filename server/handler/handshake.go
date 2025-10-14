@@ -127,11 +127,6 @@ func createClientHelloSpec(payload openapi.TlsClientParameters) (*utls.ClientHel
 		supportedSignatureAlgorithms[i] = utls.SignatureScheme(val)
 	}
 
-	protocolVersion, err := stringToUint16(payload.ProtocolVersion)
-	if err != nil {
-		return nil, fmt.Errorf("invalid protocol version: %s", payload.ProtocolVersion)
-	}
-
 	spec := &utls.ClientHelloSpec{
 		CipherSuites: cipherSuites,
 		Extensions: []utls.TLSExtension{
@@ -143,10 +138,9 @@ func createClientHelloSpec(payload openapi.TlsClientParameters) (*utls.ClientHel
 			&utls.SignatureAlgorithmsExtension{
 				SupportedSignatureAlgorithms: supportedSignatureAlgorithms,
 			},
-			&utls.SupportedVersionsExtension{Versions: []uint16{protocolVersion}},
+			&utls.SupportedVersionsExtension{Versions: []uint16{utls.VersionTLS13}},
 		},
 	}
-
 	return spec, nil
 }
 
