@@ -95,7 +95,7 @@ func (s Server) PostTlsApplication(ctx echo.Context) error {
 
 	spec, err := createClientHelloSpec(payload)
 	if err != nil {
-		return ctx.JSON(400, fmt.Sprintf("createClientHelloSpec error: %v", err))
+		return handleBadRequest(ctx, fmt.Errorf("invalid payload: %w", err), payload)
 	}
 
 	var serverResponse []byte
@@ -108,19 +108,19 @@ func (s Server) PostTlsApplication(ctx echo.Context) error {
 	}
 	uconn := utls.UClient(teeConn, config, utls.HelloCustom)
 	if err := uconn.ApplyPreset(spec); err != nil {
-		return ctx.JSON(500, fmt.Sprintf("ApplyPreset error: %v", err))
+		return handleBadRequest(ctx, fmt.Errorf("invalid payload: %w", err), payload)
 	}
 
 	clientRandom, err := hex.DecodeString(payload.ClientRandom)
 	if err != nil {
-		return ctx.JSON(400, fmt.Sprintf("Invalid ClientRandom: %v", err))
+		return handleBadRequest(ctx, fmt.Errorf("invalid payload: %w", err), payload)
 	}
 	if err := uconn.SetClientRandom(clientRandom); err != nil {
-		return ctx.JSON(500, fmt.Sprintf("SetClientRandom error: %v", err))
+		return handleBadRequest(ctx, fmt.Errorf("invalid payload: %w", err), payload)
 	}
 
 	if err := uconn.Handshake(); err != nil {
-		return ctx.JSON(500, fmt.Sprintf("uconn.Handshake() error: %v", err))
+		return handleBadRequest(ctx, fmt.Errorf("invalid payload: %w", err), payload)
 	}
 
 	var httpResponse []byte
@@ -128,7 +128,7 @@ func (s Server) PostTlsApplication(ctx echo.Context) error {
 	if payload.ApplicationData != nil {
 		_, err = uconn.Write([]byte(*payload.ApplicationData))
 		if err != nil {
-			return ctx.JSON(500, fmt.Sprintf("uconn.Write() error: %v", err))
+			return handleBadRequest(ctx, fmt.Errorf("invalid payload: %w", err), payload)
 		}
 
 		httpResponse, err = io.ReadAll(uconn)
